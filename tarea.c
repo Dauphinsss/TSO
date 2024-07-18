@@ -1,8 +1,8 @@
 #include <sys/types.h>
-#include <sys/wait.h> // Necesario para wait
+#include <sys/wait.h>
 #include <stdio.h>
-#include <stdlib.h> // Necesario para exit
-#include <unistd.h> // Necesario para fork y sleep
+#include <stdlib.h>
+#include <unistd.h>
 
 int main() {
     pid_t pid;
