@@ -24,7 +24,7 @@ int main() {
         int status;
         pid_t child_pid = wait(&status);
         if (WIFEXITED(status)) {
-            printf("el proceso termino con estatus %d\n", WEXITSTATUS(status));
+            printf("el proceso coon el PID %d termino\n", child_pid);
         }
     }
 
