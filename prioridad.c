@@ -1,87 +1,64 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <unistd.h>
 
-#define MAX_SIZE 100 // Tamaño máximo de la cola
+#define MAX_PROCESSES 10
 
-// Estructura para almacenar un proceso
+// Estructura para almacenar la información de un proceso
 typedef struct {
-    int process_id;
+    int id;
     int priority;
 } Process;
 
-// Cola de prioridad usando un array
-Process priority_queue[MAX_SIZE];
-int size = 0; // Número actual de elementos en la cola
-
-// Función para insertar un proceso en la cola de prioridad
-void insert(int process_id, int priority) {
-    if (size >= MAX_SIZE) {
-        printf("La cola de prioridad está llena.\n");
-        return;
-    }
-
-    int i = size++;
-    while (i > 0 && priority_queue[(i - 1) / 2].priority > priority) {
-        priority_queue[i] = priority_queue[(i - 1) / 2];
-        i = (i - 1) / 2;
-    }
-    priority_queue[i].process_id = process_id;
-    priority_queue[i].priority = priority;
+// Función para crear un nuevo proceso
+Process createProcess(int id, int priority) {
+    Process process;
+    process.id = id;
+    process.priority = priority;
+    return process;
 }
 
-// Función para eliminar el proceso con la mayor prioridad (el primero en el array)
-void removeHighestPriority() {
-    if (size == 0) {
-        printf("La cola de prioridad está vacía.\n");
-        return;
-    }
-
-    printf("Proceso con ID %d eliminado.\n", priority_queue[0].process_id);
-    size--;
-    if (size == 0) return;
-
-    Process last = priority_queue[size];
-    int i = 0;
-    int child = 1;
-
-    while (child < size) {
-        if (child + 1 < size && priority_queue[child + 1].priority < priority_queue[child].priority) {
-            child++;
+// Función para ordenar los procesos por prioridad (menor valor de prioridad primero)
+void sortProcesses(Process processes[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (processes[j].priority > processes[j + 1].priority) {
+                Process temp = processes[j];
+                processes[j] = processes[j + 1];
+                processes[j + 1] = temp;
+            }
         }
-        if (last.priority <= priority_queue[child].priority) break;
-        priority_queue[i] = priority_queue[child];
-        i = child;
-        child = 2 * i + 1;
     }
-    priority_queue[i] = last;
 }
 
-// Función para imprimir la cola de prioridad
-void printQueue() {
-    if (size == 0) {
-        printf("La cola de prioridad está vacía.\n");
-        return;
-    }
-    for (int i = 0; i < size; i++) {
-        printf("Proceso ID: %d, Prioridad: %d\n", priority_queue[i].process_id, priority_queue[i].priority);
-    }
+// Función que simula la ejecución de un proceso
+void* executeProcess(void* arg) {
+    Process* process = (Process*)arg;
+    printf("Ejecutando proceso %d con prioridad %d\n", process->id, process->priority);
+    sleep(1); // Simula el tiempo de ejecución del proceso
+    pthread_exit(NULL);
 }
 
 int main() {
-    // Insertar procesos en la cola de prioridad
-    insert(1, 3); // Proceso 1 con prioridad 3
-    insert(2, 1); // Proceso 2 con prioridad 1
-    insert(3, 2); // Proceso 3 con prioridad 2
+    pthread_t threads[MAX_PROCESSES];
+    Process processes[MAX_PROCESSES];
 
-    // Imprimir la cola de prioridad
-    printf("Cola de prioridad:\n");
-    printQueue();
+    // Creación de procesos con prioridades aleatorias
+    for (int i = 0; i < MAX_PROCESSES; i++) {
+        int priority = rand() % 10 + 1; // Prioridad aleatoria entre 1 y 10
+        processes[i] = createProcess(i, priority);
+        printf("Proceso %d con prioridad %d creado\n", processes[i].id, processes[i].priority);
+    }
 
-    // Eliminar el proceso con mayor prioridad
-    removeHighestPriority();
+    // Ordenar los procesos por prioridad
+    sortProcesses(processes, MAX_PROCESSES);
 
-    // Imprimir la cola de prioridad después de eliminar el proceso
-    printf("Cola de prioridad después de eliminar el proceso de mayor prioridad:\n");
-    printQueue();
+    // Ejecución de procesos en orden de prioridad
+    for (int i = 0; i < MAX_PROCESSES; i++) {
+        pthread_create(&threads[i], NULL, executeProcess, (void*)&processes[i]);
+        pthread_join(threads[i], NULL);
+    }
 
     return 0;
 }
