@@ -18,11 +18,11 @@ int main(){
         }else{
             pids[i] = pid;
         }
-        for(int i = 0; i < 5; i ++){
+        
+    }
+    for(int i = 0; i < 5; i ++){
             waitpid(pids[i], &status, 0);
         }
-        printf("todos los hijos han terminado");
-    }
-  
+    printf("todos los hijos han terminado\n");
     return 0;
 }
