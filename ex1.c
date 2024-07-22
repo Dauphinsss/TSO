@@ -13,9 +13,10 @@ int main(){
         }else if(pid == 0){
             sleep(2);
             printf("soy el proceso hijo %d\n",getpid());
+            exit(0);
         }else{
             wait(&status);
-            printf("el proceso hijo %d ha finalizado",pid);
+            printf("el proceso hijo %d ha finalizado\n",pid);
         }
     }
     return 0;
