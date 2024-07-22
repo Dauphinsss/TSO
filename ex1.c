@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <stlib.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
 
@@ -7,7 +7,7 @@ int main(){
     pid_t pid;
     int status;
     for(int i = 0; i < 5; i++){
-        pid = fork()
+        pid = fork();
         if(pid < 0){
             exit(1);
         }else if(pid == 0){
